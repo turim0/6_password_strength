@@ -26,7 +26,7 @@ def is_diverse(password):
 
 
 def is_banned_by_mask(password):
-    filter = [
+    patterns = [
         #phones
         r'^((8|\+7)[\-]?)?(\(?\d{3}\)?[\-]?)?[\d\-]{7,10}$',
         #dates
@@ -35,7 +35,7 @@ def is_banned_by_mask(password):
         #YYYY-MM-DD
         r'[0-9]{4}[-/.](0?[1-9]|1[012])[-/.](0?[1-9]|1[0-9]|2[0-9]|3[01])'
     ]
-    return any(re.search(pattern, password) for pattern in filter)
+    return any(re.search(pattern, password) for pattern in patterns)
 
 
 def load_data(file_path):
