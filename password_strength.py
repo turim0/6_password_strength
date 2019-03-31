@@ -1,11 +1,11 @@
 import re
 from collections import Counter
-import argparse
 import sys
 import os
+import getpass
 
 
-def includes_case_sensivity(password):
+def contains_uppercase_and_lowercase_letters(password):
     return bool(re.search(r'[a-z][A-Z]', password))
 
 
@@ -13,8 +13,15 @@ def includes_digits(password):
     return bool(re.search(r'\d', password))
 
 
-def length_quality(password):
-    return sum([len(password) > 5, len(password) > 8, len(password) > 15])
+def get_length_quality(password):
+    normal_length = 5
+    good_length = 8
+    perfect_length = 15
+    return sum([
+        len(password) > normal_length,
+        len(password) > good_length,
+        len(password) > perfect_length
+    ])
 
 
 def includes_special_symbols(password):
@@ -43,31 +50,41 @@ def load_data(file_path):
         return file.read()
 
 
-def is_in_blacklist(password, blacklist):
-    return blacklist.find(password) != -1
+def is_not_in_blacklist(password, blacklist):
+    if blacklist is None:
+        return False
+    list_of_passwords = re.split(r'\s+', blacklist)
+    for bad_password in list_of_passwords:
+        if password == bad_password:
+            return False
+        else:
+            return True
 
 
 def get_password_strength(password, blacklist):
-    return (sum([1,
-                 includes_case_sensivity(password),
-                 includes_digits(password),
-                 length_quality(password),
-                 includes_special_symbols(password),
-                 is_diverse(password),
-                 not is_banned_by_mask(password),
-                 not is_in_blacklist(password, blacklist)]
-                )
-            )
+    return sum([
+        1,
+        contains_uppercase_and_lowercase_letters(password),
+        includes_digits(password),
+        get_length_quality(password),
+        includes_special_symbols(password),
+        is_diverse(password),
+        not is_banned_by_mask(password),
+        is_not_in_blacklist(password, blacklist)
+    ])
 
 
 if __name__ == '__main__':
     file_path = sys.argv[1] if len(sys.argv) > 1 else None
-    if file_path is None:
-        sys.exit('Usage: password_strength.py + password blacklist file')
-    if not os.path.isfile(file_path):
-        sys.exit('Please pass correct file name')
-    password = input('Input password: ')
-    blacklist = load_data(file_path)
+    if file_path is not None:
+        if not os.path.isfile(file_path):
+            sys.exit('Please pass correct file name')
+        blacklist = load_data(file_path)
+    else:
+        print('Warning: use password blacklist file to check your password')
+        print('Usage:python password_strength.py + path to your file')
+        blacklist = None
+    password = getpass.getpass('Password: ')
     strength = get_password_strength(password, blacklist)
     print('Password strength: {}'.format(strength))
 
