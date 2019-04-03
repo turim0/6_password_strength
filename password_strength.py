@@ -6,7 +6,7 @@ import getpass
 
 
 def contains_uppercase_and_lowercase_letters(password):
-    return bool(re.search(r'[a-z][A-Z]', password))
+    return password.islower()==password.isupper()
 
 
 def includes_digits(password):
@@ -45,20 +45,13 @@ def is_banned_by_mask(password):
     return any(re.search(pattern, password) for pattern in patterns)
 
 
-def load_data(file_path):
+def load_blacklist(file_path):
     with open(file_path, encoding='utf8') as file:
-        return file.read()
+        return file.read().splitlines()
 
 
-def is_not_in_blacklist(password, blacklist):
-    if blacklist is None:
-        return False
-    list_of_passwords = re.split(r'\s+', blacklist)
-    for bad_password in list_of_passwords:
-        if password == bad_password:
-            return False
-        else:
-            return True
+def is_in_blacklist(password, blacklist):
+    return password in blacklist
 
 
 def get_password_strength(password, blacklist):
@@ -70,7 +63,7 @@ def get_password_strength(password, blacklist):
         includes_special_symbols(password),
         is_diverse(password),
         not is_banned_by_mask(password),
-        is_not_in_blacklist(password, blacklist)
+        not is_in_blacklist(password, blacklist)
     ])
 
 
@@ -79,11 +72,11 @@ if __name__ == '__main__':
     if file_path is not None:
         if not os.path.isfile(file_path):
             sys.exit('Please pass correct file name')
-        blacklist = load_data(file_path)
+        blacklist = load_blacklist(file_path)
     else:
         print('Warning: use password blacklist file to check your password')
         print('Usage:python password_strength.py + path to your file')
-        blacklist = None
+        blacklist = []
     password = getpass.getpass('Password: ')
     strength = get_password_strength(password, blacklist)
     print('Password strength: {}'.format(strength))
