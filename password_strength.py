@@ -6,7 +6,7 @@ import getpass
 
 
 def contains_uppercase_and_lowercase_letters(password):
-    return password.islower()==password.isupper()
+    return password.islower() == password.isupper()
 
 
 def includes_digits(password):
@@ -34,12 +34,12 @@ def is_diverse(password):
 
 def is_banned_by_mask(password):
     patterns = [
-        #phones
+        # phones
         r'^((8|\+7)[\-]?)?(\(?\d{3}\)?[\-]?)?[\d\-]{7,10}$',
-        #dates
-        #DD/MM/YYYY
+        # dates
+        # DD/MM/YYYY
         r'(0?[1-9]|[12][0-9]|3[01])[-/.](0?[1-9]|1[012])[-/.](19|20)\d\d',
-        #YYYY-MM-DD
+        # YYYY-MM-DD
         r'[0-9]{4}[-/.](0?[1-9]|1[012])[-/.](0?[1-9]|1[0-9]|2[0-9]|3[01])'
     ]
     return any(re.search(pattern, password) for pattern in patterns)
